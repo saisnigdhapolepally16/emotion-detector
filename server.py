@@ -2,35 +2,31 @@
 Flask server for emotion detector.
 """
 
-from flask import Flask, render_template, request
+from flask import Flask, request
 from EmotionDetection import emotion_detector
 
-app = Flask("Emotion Detector")
-
-
-@app.route("/")
-def render_index_page():
-    """
-    Render index page.
-    """
-    return render_template('index.html')
+app = Flask(__name__)
 
 
 @app.route("/emotionDetector")
-def emotion_detector_route():
+def sent_analyzer():
     """
-    Handle emotion detection route.
+    Analyze emotion route.
     """
 
-    text_to_analyze = request.args.get('textToAnalyze')
+    text_to_analyze = request.args.get(
+        'textToAnalyze'
+    )
 
-    response = emotion_detector(text_to_analyze)
+    response = emotion_detector(
+        text_to_analyze
+    )
 
     if response['dominant_emotion'] is None:
         return "Invalid text! Please try again!"
 
     return (
-        f"For the given statement, the system response is "
+        "For the given statement, the system response is "
         f"'anger': {response['anger']}, "
         f"'disgust': {response['disgust']}, "
         f"'fear': {response['fear']}, "
@@ -39,6 +35,36 @@ def emotion_detector_route():
         f"The dominant emotion is "
         f"{response['dominant_emotion']}."
     )
+
+
+@app.route("/")
+def render_index_page():
+    """
+    Render main page.
+    """
+
+    return """
+    <html>
+        <body>
+            <h1>Emotion Detector</h1>
+
+            <form action="/emotionDetector">
+
+                <input
+                    type="text"
+                    name="textToAnalyze"
+                    placeholder="Enter text"
+                >
+
+                <input
+                    type="submit"
+                    value="Analyze"
+                >
+
+            </form>
+        </body>
+    </html>
+    """
 
 
 if __name__ == "__main__":
